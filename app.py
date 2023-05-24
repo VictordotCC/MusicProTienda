@@ -6,7 +6,7 @@ from models import db, Producto, Region, Comuna, Categoria, TipoPago, Venta, Det
 # 3. instanciamos la app
 app = Flask(__name__)
 cors = CORS(app)
-#app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['CORS_HEADERS'] = 'Content-Type'
 #app.url_map.strict_slashes = False
 app.config['DEBUG'] = True
 app.config['ENV'] = 'development'
@@ -15,9 +15,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:musicpro1234AB@db.colafxnkypjqvelgindi.supabase.co:5432/postgres'
 
 
-db.init_app(app)
+#db.init_app(app)
 
-Migrate(app, db)
+#Migrate(app, db)
 
 # 5. Creamos la ruta por defecto para saber si mi app esta funcionado
 # 6. ejecutamos el comando en la consola: python app.py o python3 app.py y revisamos nuestro navegador
@@ -131,45 +131,40 @@ def login():
 import requests
 import json
 import random
+from transbank.webpay.webpay_plus.transaction import Transaction
 
-webpay_url = 'https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions'
+#webpay_url = 'https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions'
 
-@cross_origin()
+
 @app.route('/webpay', methods=['POST'])
 def webpay():
-    """Crear una transaccion en Webpay"""
+    """Crea una transaccion webpay"""
     #data = request.get_json()
-    headers = {'Tbk-Api-Key-Id': '597055555532',
-               'Tbk-Api-Key-Secret': '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',
-               'Content-Type': 'application/json'}
-    payload = {
-        "buy_order": str(random.randrange(1000000, 99999999)),
-        "session_id": str(random.randrange(1000000, 99999999)),
-        "amount": random.randrange(10000, 1000000),
-        "return_url": request.url_root
-    }
-    response = requests.post(webpay_url, data=json.dumps(payload), headers=headers, timeout=30)
-    return response.text, 200
+    buy_order = '123456789'
+    session_id = '123456789'
+    amount = '1000'
+    return_url = request.url_root #cambiar a URL resultado
 
-@cross_origin()
-@app.route('/webpay/commit', methods=['POST'])
-def webpay_commit():
-    """Confirmar una transaccion en Webpay"""
-    data = request.get_json()
-    headers = {'Tbk-Api-Key-Id': '597055555532',
-               'Tbk-Api-Key-Secret': '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',
-               'Content-Type': 'application/json'}
-    payload = {
-        "token": data['token_ws']
+    transaction = {
+        "buy_order": buy_order,
+        "session_id": session_id,
+        "amount": amount,
+        "return_url": return_url
     }
-    response = requests.put(webpay_url + '/' + data['token_ws'], data=json.dumps(payload), headers=headers, timeout=30)
-    return response.text, 200
+
+    tx = Transaction().create(buy_order, session_id, amount, return_url)
+
+    transaction.update(tx)
+
+    print(transaction)
+
+    return jsonify(transaction), 200
 
 
 
 # 4. Configurar los puertos nuestra app 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(debug=True, port=8000)
 
 
 
