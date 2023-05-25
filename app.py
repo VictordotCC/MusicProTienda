@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
-from flask_migrate import Migrate
 from flask_cors import CORS, cross_origin
-from models import db, Producto, Region, Comuna, Categoria, TipoPago, Venta, DetalleVenta, Usuario
-    
+from transbank.webpay.webpay_plus.transaction import Transaction
+from models import Producto, Region, Comuna, Categoria, TipoPago, Venta, DetalleVenta, Usuario
+
+
 # 3. instanciamos la app
 app = Flask(__name__)
 cors = CORS(app)
@@ -128,21 +129,15 @@ def login():
 
 ##### METODOS DE API EXTERNA #####
 ### API WEBPAY ###
-import requests
-import json
-import random
-from transbank.webpay.webpay_plus.transaction import Transaction
 
-#webpay_url = 'https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions'
-
-
+@cross_origin()
 @app.route('/webpay', methods=['POST'])
 def webpay():
     """Crea una transaccion webpay"""
-    #data = request.get_json()
+    data = request.get_json()
     buy_order = '123456789'
     session_id = '123456789'
-    amount = '1000'
+    amount = data['valor']
     return_url = 'http://127.0.0.1:5500/test.html'
 
     transaction = {
@@ -158,6 +153,7 @@ def webpay():
 
     return jsonify(transaction), 200
 
+@cross_origin()
 @app.route('/webpay/commit', methods=['POST'])
 def webpay_commit():
     """Confirma una transaccion webpay"""
