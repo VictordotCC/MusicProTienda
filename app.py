@@ -1,3 +1,5 @@
+import requests
+from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from transbank.webpay.webpay_plus.transaction import Transaction
@@ -162,6 +164,22 @@ def webpay_commit():
     tx = Transaction().commit(token)
     return jsonify(tx), 200
 
+### API BANCO CENTRAL ###
+
+@cross_origin()
+@app.route('/banco-central', methods=['GET'])
+def banco_central():
+    """Consulta el valor del dolar"""
+    fecha = datetime.now()
+    fecha = fecha.strftime("%Y-%m-%d")
+    
+    url = f"https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx?user=186978803&pass=TjqSjcEQJ9kj&firstdate={fecha}&timeseries=F073.TCO.PRE.Z.D&function=GetSeries"
+
+    response = requests.get(url)
+    response = response.json()
+    valor_dolar = dict()
+    valor_dolar['dolar'] = response['Series']['Obs'][0]['value']
+    return jsonify(valor_dolar), 200
 
 
 # 4. Configurar los puertos nuestra app 
