@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from transbank.webpay.webpay_plus.transaction import Transaction
-from models import Producto, Region, Comuna, Categoria, TipoPago, Venta, DetalleVenta, Usuario
+from models import db, Producto, Region, Comuna, Categoria, TipoPago, Venta, DetalleVenta, Usuario
 
 
 # 3. instanciamos la app
@@ -18,7 +18,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:musicpro1234AB@db.colafxnkypjqvelgindi.supabase.co:5432/postgres'
 
 
-#db.init_app(app)
+db.init_app(app)
 
 #Migrate(app, db)
 
