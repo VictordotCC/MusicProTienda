@@ -143,7 +143,7 @@ def webpay():
     buy_order = '123456789'
     session_id = '123456789'
     amount = '1000'
-    return_url = request.url_root #cambiar a URL resultado
+    return_url = 'http://127.0.0.1:5500/test.html'
 
     transaction = {
         "buy_order": buy_order,
@@ -156,9 +156,15 @@ def webpay():
 
     transaction.update(tx)
 
-    print(transaction)
-
     return jsonify(transaction), 200
+
+@app.route('/webpay/commit', methods=['POST'])
+def webpay_commit():
+    """Confirma una transaccion webpay"""
+    data = request.get_json()
+    token = data['token_ws']
+    tx = Transaction().commit(token)
+    return jsonify(tx), 200
 
 
 

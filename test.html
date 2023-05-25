@@ -10,37 +10,80 @@
     <button id="send" onclick="postWebpay()">Enviar</button>
 
     <script type="text/javascript">
-        async function postWebpay() {
-        const url = "http://localhost:8000/webpay";
-        
-        try {
-            const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            }
-            });
+        const urlParams = new URLSearchParams(window.location.search);
+        const token_ws = urlParams.get('token_ws');
 
-            const data = await response.json();
-            /*<form method="post" action="Inserta aquí la url entregada">
-            <input type="hidden" name="token_ws" value="Inserte aquí el token entregado" />
-            <input type="submit" value="Ir a pagar" />
-            </form>*/
-            let form = document.createElement("form");
-            form.setAttribute("method", "post");
-            form.setAttribute("action", data.url);
-            let input = document.createElement("input");
-            input.setAttribute("type", "hidden");
-            input.setAttribute("name", "token_ws");
-            input.setAttribute("value", data.token);
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-            
-        } catch (error) {
-            console.error(error);
+        async function getWebpay() {
+            const url = "http://localhost:8000/webpay/commit";
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ token_ws: token_ws })
+                });
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error(error);
+            }
         }
-}
+
+
+
+
+        async function postWebpay() {
+            const url = "http://localhost:8000/webpay";
+            
+            try {
+                const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+                });
+
+                const data = await response.json();
+                /*<form method="post" action="Inserta aquí la url entregada">
+                <input type="hidden" name="token_ws" value="Inserte aquí el token entregado" />
+                <input type="submit" value="Ir a pagar" />
+                </form>*/
+                let form = document.createElement("form");
+                form.setAttribute("method", "post");
+                form.setAttribute("action", data.url);
+                let input = document.createElement("input");
+                input.setAttribute("type", "hidden");
+                input.setAttribute("name", "token_ws");
+                input.setAttribute("value", data.token);
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+                
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function getResponse() {
+            result = await getWebpay();
+            Promise.resolve(result);
+            console.log(result);
+            if (result.response_code == '0' && result.status == 'AUTHORIZED') {
+                alert("Transacción exitosa");
+                window.location.href = "http://localhost:5500/test.html"                
+            } else {
+                alert("Transacción rechazada");
+            }
+        }
+
+
+
+        if (token_ws) {
+            getResponse();
+        }
     </script>
 </body>
 
