@@ -137,10 +137,10 @@ def login():
 def webpay():
     """Crea una transaccion webpay"""
     data = request.get_json()
-    buy_order = '123456789'
-    session_id = '123456789'
+    buy_order = data['buy_order']
+    session_id = data['session_id']
     amount = data['valor']
-    return_url = 'http://127.0.0.1:5500/test.html'
+    return_url = data['return_url']
 
     transaction = {
         "buy_order": buy_order,
